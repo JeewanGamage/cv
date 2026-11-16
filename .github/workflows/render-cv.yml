@@ -6,7 +6,7 @@ name: Render CV
 on:
   push:
     branches: [main]
-    paths: ["data/**", "R/**", "*.qmd", "*.tex", "images/**", ".github/workflows/render-cv.yml"]
+    paths: ["data/**", "R/**", "*.qmd", "*.tex", "render.R", "images/**", ".github/workflows/render-cv.yml"]
   workflow_dispatch:
 
 permissions:
@@ -33,7 +33,7 @@ jobs:
       - name: Install XeLaTeX and fonts (Lato, Roboto)
         run: |
           sudo apt-get update -q
-          sudo apt-get install -y -q --no-install-recommends texlive-xetex texlive-latex-extra texlive-fonts-extra texlive-pictures lmodern fonts-lato fonts-roboto-unhinted
+          sudo apt-get install -y -q --no-install-recommends texlive-xetex texlive-fonts-recommended texlive-latex-extra texlive-fonts-extra texlive-pictures lmodern fonts-lato fonts-roboto-unhinted
           mkdir -p fonts
           cp /usr/share/fonts/truetype/lato/Lato-{Regular,Bold,Italic,BoldItalic}.ttf fonts/
           cp /usr/share/fonts/truetype/roboto/unhinted/RobotoTTF/Roboto-{Regular,Bold,Light,Italic,BoldItalic}.ttf fonts/
