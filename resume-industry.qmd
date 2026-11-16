@@ -1,0 +1,103 @@
+---
+title: ""
+format:
+  pdf:
+    documentclass: article
+    papersize: letter
+    geometry: "left=1.6cm,right=1.6cm,top=1.4cm,bottom=1.6cm"
+    include-in-header: cv-header.tex
+    pdf-engine: xelatex
+    number-sections: false
+    colorlinks: true
+    linkcolor: awesome
+    urlcolor: awesome
+    toc: false
+  docx:
+    reference-doc: reference.docx
+    toc: false
+    number-sections: false
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+source("R/cv_functions.R")
+cv <- load_cv("data/cv.yml")
+p  <- cv$person
+today <- format(Sys.Date(), "%B %Y")
+```
+
+```{r header, results='asis'}
+if (is_pdf()) {
+  cat(glue("\\newcommand{{\\cvfootleft}}{{{today}}}\n\\newcommand{{\\cvfootcentre}}{{{p$name} · Résumé}}\n"))
+  photo <- if (file.exists("images/photo.jpg")) "images/photo.jpg" else ""
+  contact <- glue("\\faEnvelope\\ {p$email2} \\quad \\faPhone\\ {p$phone} \\quad \\faMapMarker\\ Guelph, Ontario \\quad ",
+                  "\\faGlobe\\ {p$website} \\quad \\faLinkedin\\ {p$linkedin}")
+  cat(glue("\\cvheader{{{p$name}}}{{Soil Scientist · Research and Project Lead}}{{PhD (Environmental Sciences), MBA, CIMA}}{{{contact}}}{{{p$profile_industry}}}{{{photo}}}\n"))
+} else {
+  out(glue("# {p$name}, {p$credentials}"))
+  out("**Soil Scientist, Research and Project Lead**  ")
+  out(glue("{p$email2} | {p$phone} | Guelph, Ontario | https://{p$website} | linkedin.com/in/{p$linkedin}"))
+  out(glue("*{p$profile_industry}*"))
+}
+```
+
+# Core competencies
+
+```{r, results='asis'}
+skills_section(cv)
+```
+
+# Professional experience
+
+```{r, results='asis'}
+positions_section(cv, keep = c(
+  "Postdoctoral Research Scholar",
+  "Chair, Bargaining Lead and Unit Grievance Officer",
+  "Part-time Faculty",
+  "Curriculum Developer",
+  "Graduate Research Assistant and PhD Candidate",
+  "Lecturer",
+  "Personal Banking Officer"))
+```
+
+# Selected achievements
+
+```{r, results='asis'}
+bullet_list(list(
+  "Co-developed and lead the isotope workstream of a CAD 239,572 OMAFA Tier 1 grassland carbon project and contributed to a CAD 228,335 NMR soil-health proposal.",
+  "Delivered multi-season field campaigns across Ontario research sites with traceable sample archives, QA logs and reproducible R analysis pipelines.",
+  "Brought a CFI/John R. Evans Leaders Fund research-infrastructure award to operational readiness (elemental analyser, root washer, ball mill), including procurement, safe workflows and user training.",
+  "Elected Chair and Bargaining Lead for the University of Guelph postdoctoral unit; negotiate collective terms and resolve grievances with HR and academic leadership.",
+  "Built two complete college curricula (Business Statistics, Climate Change Governance) and teach with a 4.7/5.0 evaluation average.",
+  "First author of papers in Scientific Reports and Applied Geochemistry; six further first-author manuscripts in review; Top Cited Article recognition (2025).",
+  "Completed Lab2Market Discover and Validate (NSERC/Mitacs) and designed a validation concept for a soil-health and salinity-risk dashboard."
+))
+```
+
+# Education
+
+```{r, results='asis'}
+walk(cv$education, ~ out(glue("- **{.x$degree}**, {.x$institution}, {.x$start} to {.x$end}")))
+```
+
+# Awards and recognition
+
+```{r, results='asis'}
+dated_list(cv$awards[1:6])
+```
+
+# Training and certification
+
+```{r, results='asis'}
+dated_list(cv$training[1:3])
+```
+
+# Professional memberships and languages
+
+```{r, results='asis'}
+out(paste(cv$memberships, collapse = "; "), ". Languages: ", p$language, ".")
+out("Full publication list, presentations and references available at https://", p$website, ".")
+```

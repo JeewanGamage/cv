@@ -1,0 +1,144 @@
+---
+title: ""
+format:
+  pdf:
+    documentclass: article
+    papersize: a4
+    geometry: "left=1.6cm,right=1.6cm,top=1.5cm,bottom=1.8cm"
+    include-in-header: cv-header.tex
+    pdf-engine: xelatex
+    number-sections: false
+    colorlinks: true
+    linkcolor: awesome
+    urlcolor: awesome
+    toc: false
+  docx:
+    reference-doc: reference.docx
+    toc: false
+    number-sections: false
+execute:
+  echo: false
+  warning: false
+  message: false
+---
+
+```{r setup}
+source("R/cv_functions.R")
+cv <- load_cv("data/cv.yml")
+p  <- cv$person
+n  <- counts(cv)
+today <- format(Sys.Date(), "%B %Y")
+```
+
+```{r header, results='asis'}
+if (is_pdf()) {
+  cat(glue("\\newcommand{{\\cvfootleft}}{{{today}}}\n\\newcommand{{\\cvfootcentre}}{{{p$name} · Curriculum Vitae}}\n"))
+  photo <- if (file.exists("images/photo.jpg")) "images/photo.jpg" else ""
+  contact <- glue(
+    "\\faEnvelope\\ {p$email} \\quad \\faGlobe\\ {p$website} \\quad ",
+    "\\faGithub\\ {p$github} \\quad \\faLinkedin\\ {p$linkedin} \\quad \\faGraduationCap\\ Google Scholar",
+    if (nzchar(p$orcid)) glue(" \\quad \\faOrcid\\ {p$orcid}") else "")
+  cat(glue("\\cvheader{{{p$name}}}{{{p$position}}}{{{p$affiliation}}}{{{contact}}}{{{p$profile_academic}}}{{{photo}}}\n"))
+} else {
+  out(glue("# {p$name}, {p$credentials}"))
+  out(glue("**{p$position}**, {p$affiliation}  "))
+  out(glue("{p$email} | {p$phone} | https://{p$website} | github.com/{p$github} | linkedin.com/in/{p$linkedin}"))
+  out(glue("*{p$profile_academic}*"))
+}
+```
+
+# Education
+
+```{r, results='asis'}
+education_section(cv)
+```
+
+# Research and professional experience
+
+```{r, results='asis'}
+positions_section(cv)
+```
+
+# Grants and funded projects
+
+```{r, results='asis'}
+dated_list(cv$grants)
+```
+
+# Peer-reviewed publications
+
+```{r, results='asis'}
+out(glue("Published (**{n$pubs}**) and under review or submitted (**{n$review}**). Earlier publications appear under the name H. G. J. T. Kumara."))
+out("## Published")
+numbered_list(map_chr(cv$publications, format_pub))
+out("## Under review and submitted")
+numbered_list(map_chr(cv$under_review, format_pub, with_status = TRUE))
+out("## Conference proceedings")
+numbered_list(map_chr(cv$proceedings, "text"))
+```
+
+# Invited talks and oral presentations
+
+```{r, results='asis'}
+dated_list(cv$talks)
+```
+
+# Poster presentations
+
+```{r, results='asis'}
+dated_list(cv$posters)
+```
+
+# Awards and honours
+
+```{r, results='asis'}
+dated_list(cv$awards)
+```
+
+# Teaching
+
+```{r, results='asis'}
+dated_list(cv$teaching, when = "when")
+```
+
+# Supervision and mentoring
+
+```{r, results='asis'}
+dated_list(cv$mentoring, when = "when")
+```
+
+# Service, leadership and peer review
+
+```{r, results='asis'}
+dated_list(cv$service, when = "when")
+```
+
+# Knowledge mobilization and outreach
+
+```{r, results='asis'}
+bullet_list(cv$outreach)
+```
+
+# Technical and analytical competences
+
+```{r, results='asis'}
+skills_section(cv)
+```
+
+# Professional training and certification
+
+```{r, results='asis'}
+dated_list(cv$training)
+```
+
+# Professional memberships
+
+```{r, results='asis'}
+bullet_list(cv$memberships)
+```
+
+# References
+
+```{r, results='asis'}
+references_section(cv)
+```

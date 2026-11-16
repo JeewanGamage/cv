@@ -1,0 +1,12 @@
+*.log
+*.aux
+cv-academic.tex
+resume-industry.tex
+*_files/
+.quarto/
+/cv-academic.pdf
+/cv-academic.docx
+/resume-industry.pdf
+/resume-industry.docx
+page-*.png
+res-*.png
