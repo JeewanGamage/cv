@@ -7,6 +7,8 @@ if (!file.exists("reference.docx")) {
 }
 dir.create("output", showWarnings = FALSE)
 docs <- c("cv-academic", "resume-industry")
+expected <- file.path("output", paste0("Jeewan_Gamage_", rep(docs, each = 2), c(".pdf", ".docx")))
+unlink(expected)  # start clean, so a failed render cannot leave an old file behind
 for (d in docs) {
   for (fmt in c("pdf", "docx")) {
     system2("quarto", c("render", paste0(d, ".qmd"), "--to", fmt))
@@ -15,3 +17,7 @@ for (d in docs) {
 }
 unlink(paste0(docs, ".pdf")); unlink(paste0(docs, ".docx"))
 cat("Rendered:", list.files("output"), sep = "\n")
+
+# Fail loudly (so GitHub marks the run red) if any document did not build
+missing <- expected[!file.exists(expected)]
+if (length(missing)) stop("These files did not render: ", paste(missing, collapse = ", "))
