@@ -1,0 +1,50 @@
+# Rebuilds the PDF and Word versions of the CV and résumé every time
+# data/cv.yml (or any .qmd / .R file) changes on GitHub, and commits the
+# results to output/. Nothing needs to be installed on your computer.
+name: Render CV
+
+on:
+  push:
+    branches: [main]
+    paths: ["data/**", "R/**", "*.qmd", "*.tex", "images/**", ".github/workflows/render-cv.yml"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  render:
+    runs-on: ubuntu-latest
+    env:
+      LANG: C.UTF-8
+      LC_ALL: C.UTF-8
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: r-lib/actions/setup-r@v2
+        with:
+          use-public-rspm: true
+
+      - name: Install R packages
+        run: Rscript -e 'install.packages(c("yaml","glue","purrr","stringr","knitr","rmarkdown"))'
+
+      - uses: quarto-dev/quarto-actions/setup@v2
+
+      - name: Install XeLaTeX and fonts (Lato, Roboto)
+        run: |
+          sudo apt-get update -q
+          sudo apt-get install -y -q --no-install-recommends texlive-xetex texlive-latex-extra texlive-fonts-extra texlive-pictures lmodern fonts-lato fonts-roboto-unhinted
+          mkdir -p fonts
+          cp /usr/share/fonts/truetype/lato/Lato-{Regular,Bold,Italic,BoldItalic}.ttf fonts/
+          cp /usr/share/fonts/truetype/roboto/unhinted/RobotoTTF/Roboto-{Regular,Bold,Light,Italic,BoldItalic}.ttf fonts/
+
+      - name: Render
+        run: Rscript render.R
+
+      - name: Commit rendered files
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add output/
+          git diff --cached --quiet || git commit -m "Render CV [skip ci]"
+          git push
